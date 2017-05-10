@@ -379,12 +379,6 @@ public abstract class RefreshLayoutBase<T extends View> extends ViewGroup implem
         },100);
     }
 
-    public void loadComplete(){
-        mScroller.startScroll(getScrollX(),getScrollY(),0,mInitScrollY - getScrollY());
-        mCurrentStatus = STATUS_IDLE;
-        invalidate();
-
-    }
 
 
     /**
@@ -414,11 +408,26 @@ public abstract class RefreshLayoutBase<T extends View> extends ViewGroup implem
      */
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        Log.d("下拉加载更多", "onScroll: "+ mScroller.getCurrY());
         if(mLoadListener != null && isBottom() && mScroller.getCurrY() <= mInitScrollY
                 && mYOffset <= 0 && mCurrentStatus == STATUS_IDLE) {
-            showFooterView();
+           // mScroller.startScroll(getScrollX(), getScrollY(), 0, mFooterView.getMeasuredHeight());
+            scrollBy(0, mFooterView.getMeasuredHeight());
+            mFooterView.setVisibility(View.VISIBLE);
+            invalidate();
+            mCurrentStatus = STATUS_LOADING;
             doLoadMore();
         }
+    }
+
+
+    public void loadComplete(){
+        Log.d("下拉加载更多", "loadComplete: "+mScroller.getCurrY());
+        //mScroller.startScroll(getScrollX(), getScrollY(), 0, -mFooterView.getMeasuredHeight());
+        scrollBy(0, -mFooterView.getMeasuredHeight());
+        mCurrentStatus = STATUS_IDLE;
+        invalidate();
+        Log.d("下拉加载更多", "loadComplete: "+mScroller.getCurrY());
     }
 
     /**
@@ -430,19 +439,9 @@ public abstract class RefreshLayoutBase<T extends View> extends ViewGroup implem
         }
     }
 
-    private void showFooterView() {
-        startScroll(mFooterView.getMeasuredHeight());
-        mCurrentStatus = STATUS_LOADING;
-    }
 
-    /**
-     * 设置滚动参数
-     * @param yOffset
-     */
-    private void startScroll(int yOffset) {
-        mScroller.startScroll(getScrollX(), getScrollY(), 0, yOffset);
-        invalidate();
-    }
+
+
 
     /**
      * 设置下拉刷新的监听器
