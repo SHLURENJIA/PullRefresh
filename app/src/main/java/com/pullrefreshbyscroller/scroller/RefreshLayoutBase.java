@@ -141,6 +141,8 @@ public abstract class RefreshLayoutBase<T extends View> extends ViewGroup implem
         mProgressBar = (ProgressBar) mHeaderView.findViewById(R.id.pull_to_refresh_progress);
     }
 
+    public T getContentView() { return mContentView; }
+
     /**if isTop return true
      * 达到顶部继续下拉则拦截事件
      * @return
@@ -376,6 +378,14 @@ public abstract class RefreshLayoutBase<T extends View> extends ViewGroup implem
             }
         },100);
     }
+
+    public void loadComplete(){
+        mScroller.startScroll(getScrollX(),getScrollY(),0,mInitScrollY - getScrollY());
+        mCurrentStatus = STATUS_IDLE;
+        invalidate();
+
+    }
+
 
     /**
      * 修改header上面上一次刷新的时间
